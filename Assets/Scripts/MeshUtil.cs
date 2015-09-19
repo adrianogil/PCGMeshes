@@ -53,4 +53,94 @@ public class MeshUtil : MonoBehaviour {
 
 		return mesh;
 	}
+
+	/// <summary>
+	/// Generate a Plane
+	/// </summary>
+	public static Mesh CreatePlane(float width, float length, int sideVerticesX, int sideVerticesZ)
+	{
+		Mesh mesh = new Mesh();
+
+		if (sideVerticesX < 2 || sideVerticesZ < 2)
+		{
+			return mesh;
+		}
+
+		// Vertices
+		#region Plane - Vertices Calculation
+		Vector3[] vertices = new Vector3[sideVerticesX * sideVerticesZ];
+
+		float zPos, xPos;
+
+		for (int z = 0; z < sideVerticesZ; z++ )
+		{
+			// [ -length/2 , length/2]
+			zPos = ((float)z / (sideVerticesZ - 1) - 0.5f) * length;
+
+			for (int x = 0; x < sideVerticesX; x++)
+			{
+				// [ - width/2, width/2]
+				xPos = ((float)x / (sideVerticesX - 1) - 0.5f) * width;
+
+				vertices[x + z * sideVerticesX] = new Vector3(xPos, 0f, zPos);
+			}
+		}
+		#endregion
+
+		// Triangles
+		#region Plane - Triangles Calculation
+		int numberFaces = (sideVerticesX - 1) * (sideVerticesZ - 1);
+		int[] triangles = new int[numberFaces * 6];
+
+		int tIndex = 0, i;
+
+		for (int face = 0; face < numberFaces; face++)
+		{
+			// Retrieve lower left corner from face index
+			i = face % (sideVerticesX - 1) + (face / (sideVerticesZ - 1) * sideVerticesX);
+
+			Debug.Log("Face " + face + ": " + i);
+
+			triangles[tIndex++] = i + sideVerticesX;
+			triangles[tIndex++] = i + 1;
+			triangles[tIndex++] = i;
+
+			triangles[tIndex++] = i + sideVerticesX;
+			triangles[tIndex++] = i + sideVerticesX + 1;
+			triangles[tIndex++] = i + 1;	
+		}
+		#endregion
+
+		// Normals
+		#region Plane - Normals Calculation
+		Vector3[] normals = new Vector3[vertices.Length];
+		for (int n = 0; n < vertices.Length; n++)
+		{
+			normals[n] = Vector3.up;
+		}
+		#endregion
+
+		// UV
+		#region Plane - UV Calculation
+		Vector2[] uv = new Vector2[vertices.Length];
+		for (int v = 0; v < sideVerticesZ; v++)
+		{
+			for (int u = 0; u < sideVerticesX; u++)
+			{
+				uv[u + v * sideVerticesX] = new Vector2((float)u/(sideVerticesX-1),
+														(float)v/(sideVerticesZ-1));
+			}
+		}
+		#endregion
+
+		// Setup mesh
+		mesh.vertices = vertices;
+		mesh.triangles = triangles;
+		mesh.normals = normals;
+
+		mesh.RecalculateBounds();
+		mesh.Optimize();
+
+		return mesh;
+	}
 }

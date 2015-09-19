@@ -9,7 +9,7 @@ public class PCGEditor : MonoBehaviour {
 	{	
 		Debug.Log("I am about to generate a plane.");
 
-		Mesh mesh = MeshUtil.CreatePlane(1f,1f);
+		Mesh mesh = MeshUtil.CreatePlane(1f,1f, 9, 9);
 
 		GameObject gameObject = new GameObject("Plane");
 		gameObject.AddComponent<MeshFilter>();
